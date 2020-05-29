@@ -34,20 +34,20 @@ public class JSONManager {
     public void parseKML(String output) {
 
         try (FileReader reader = new FileReader(file)) {
-
-            JDOM2Manager writer = new JDOM2Manager(output);
-
             //reading file
             Object obj = parser.parse(reader);
 
             //parsing each country
             JSONArray features = (JSONArray) ((JSONObject)obj).get("features");
+
+            //Writing
+            JDOM2Manager writer = new JDOM2Manager(output);
             for(Object country : features){
                 writer.writeKMLPolygon((JSONObject)country);
             }
 
             //flush on output file
-            writer.flush();
+            writer.toOutputFile();
 
         } catch (IOException | ParseException e ) {
             e.printStackTrace();
