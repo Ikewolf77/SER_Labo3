@@ -7,6 +7,7 @@
 import java.io.FileReader;
 import java.io.IOException;
 
+import org.jdom2.Element;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -43,13 +44,16 @@ public class JSONManager {
             //Writing
             JDOM2Manager writer = new JDOM2Manager(output);
             JSONObject test = (JSONObject) features.get(0);
-//            for(Object country : features){
-//                writer.writeKMLPolygon((JSONObject)country);
-//            }
+
+            Element docElem = writer.headerOutput();
+            for(Object country : features){
+                writer.writeKMLPolygon((JSONObject)country);
+                writer.toOutputFile((JSONObject)country, docElem);
+            }
             writer.writeKMLPolygon((JSONObject)test);
 
             //flush on output file
-            writer.toOutputFile(test);
+           // writer.toOutputFile(test);
 
         } catch (IOException | ParseException e ) {
             e.printStackTrace();

@@ -30,28 +30,13 @@ public class JDOM2Manager {
       //  System.out.println(coordinatesArray);
     }
 
-    public void toOutputFile(JSONObject country) throws IOException {
-        Element docElem = new Element("Document");
-        doc = new Document(docElem);
-
+    public void toOutputFile(JSONObject country, Element docElem) throws IOException {
         boolean isPolygonMulti = ((JSONObject)country.get("geometry")).get("type").toString().equals("MultiPolygon");
-
-        Element name = new Element("name");
-        name.setText("countries.kml");
-        Element style = new Element("Style");
-        style.setAttribute(new Attribute("id", "orange-5px"));
-        Element lineStyle = new Element("LineStyle");
-        lineStyle.addContent(new Element("color").setText("ff00aaff"));
-        lineStyle.addContent(new Element("width").setText("5"));
-
-        docElem.addContent(name);
-        docElem.addContent(style.addContent(lineStyle));
-
 
         Element placemark = new Element("Placemark");
         String countryName = ((JSONObject)country.get("properties")).get("ADMIN").toString();
         docElem.addContent(placemark);
-        placemark.addContent(name.clone().setText(countryName));
+        placemark.addContent(new Element("Name").setText(countryName));
         placemark.addContent(new Element("styleUrl").setText("#orange-5px"));
 
         String coordinatesStr ="";
@@ -134,7 +119,7 @@ public class JDOM2Manager {
         return coordinatesStr;
     }
 
-    void headerOutput(){
+    Element headerOutput(){
         Element docElem = new Element("Document");
         doc = new Document(docElem);
 
@@ -148,6 +133,8 @@ public class JDOM2Manager {
 
         docElem.addContent(name);
         docElem.addContent(style.addContent(lineStyle));
+
+        return docElem;
     }
 
 }
