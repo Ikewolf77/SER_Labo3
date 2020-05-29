@@ -47,22 +47,33 @@ public class JDOM2Manager {
 
 
         Element placemark = new Element("Placemark");
-        Element lineString = new Element("LineString");
-        Element coordinates = new Element("coordinates");
-
-
         String countryName = ((JSONObject)country.get("properties")).get("ADMIN").toString();
-
-        String coordinatesStr = ((JSONObject)country.get("geometry")).get("type").toString().equals("MultiPolygon") ?
-                multiPolygonToStr(country) : polygonToStr(country);
-
-
         docElem.addContent(placemark);
         placemark.addContent(name.clone().setText(countryName));
         placemark.addContent(new Element("styleUrl").setText("#orange-5px"));
-        placemark.addContent(lineString.addContent(new Element("tessellate").setText("1")));
-        lineString.addContent(coordinates);
-        coordinates.setText(coordinatesStr);
+
+        String coordinatesStr ="";
+//        String coordinatesStr = ((JSONObject)country.get("geometry")).get("type").toString().equals("MultiPolygon") ?
+//                multiPolygonToStr(country) : polygonToStr(country);
+        JSONArray testArray = (JSONArray) ((JSONObject)country.get("geometry")).get("coordinates");
+        Element multiG = new Element("MultiGeometry");
+        for(int i =0; i < testArray.size(); i++){
+            extractCoordMP(i, country);
+            Element lineString = new Element("LineString");
+            Element coordinates = new Element("coordinates");
+            coordinatesStr = extractCoordMP(i, country);
+            multiG.addContent(lineString);
+            lineString.addContent(coordinates);
+            coordinates.setText(coordinatesStr);
+        }
+
+        placemark.addContent(multiG);
+
+
+
+
+
+
 
 
 
@@ -105,5 +116,23 @@ public class JDOM2Manager {
     }
 
         return coordinatesStr;
+    }
+
+    String extractCoordMP(int y, JSONObject multiPolygon){
+        JSONArray coordinatesArrayRoot = (JSONArray) ((JSONObject)multiPolygon.get("geometry")).get("coordinates");
+        JSONArray coordinatesArray = (JSONArray) coordinatesArrayRoot.get(y);
+        JSONArray polyArray = (JSONArray) ((JSONArray) (coordinatesArray)).get(0);
+
+        String coordinatesStr = "\n";
+            for(Object coord : (JSONArray) polyArray){
+                JSONArray coordArray = (JSONArray)coord;
+                coordinatesStr += coordArray.get(0)+ "," + coordArray.get(1) + ",0\n";
+            }
+
+        return coordinatesStr;
+    }
+
+    String extractCoordPoly(int i){
+        return "";
     }
 }
