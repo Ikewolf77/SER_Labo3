@@ -36,7 +36,7 @@ public class JDOM2Manager {
         Element placemark = new Element("Placemark");
         String countryName = ((JSONObject)country.get("properties")).get("ADMIN").toString();
         docElem.addContent(placemark);
-        placemark.addContent(new Element("Name").setText(countryName));
+        placemark.addContent(new Element("name").setText(countryName));
         placemark.addContent(new Element("styleUrl").setText("#orange-5px"));
 
         String coordinatesStr ="";
