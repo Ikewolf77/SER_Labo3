@@ -41,29 +41,45 @@ public class JDOM2Manager {
 
         String coordinatesStr ="";
 
+
+
         if(isPolygonMulti){
             JSONArray testArray = (JSONArray) ((JSONObject)country.get("geometry")).get("coordinates");
             Element geomStyle = new Element("MultiGeometry");
+
+
             for(int i =0; i < testArray.size(); i++){
+                Element outer = new Element("outerBoundaryIs");
                 extractCoordMP(i, country);
-                Element lineString = new Element("LineString");
+                Element poly = new Element("Polygon");
+                Element linearRing = new Element("LinearRing");
                 Element coordinates = new Element("coordinates");
                 coordinatesStr = extractCoordMP(i, country);
-                geomStyle.addContent(lineString);
-                lineString.addContent(coordinates);
+
+
                 coordinates.setText(coordinatesStr);
+                linearRing.addContent(coordinates);
+                outer.addContent(linearRing);
+                poly.addContent(outer);
+                //poly.addContent(outer.clone().setName("innerBoundaryIs"));
+
+                geomStyle.addContent(poly);
             }
             placemark.addContent(geomStyle);
         }else{
             Element geomStyle = new Element("Polygon");
-            Element lineString = new Element("LineString");
+            Element linearRing = new Element("LinearRing");
             Element coordinates = new Element("coordinates");
+            Element outer = new Element("outerBoundaryIs");
             coordinatesStr = polygonToStr(country);
-           // geomStyle.addContent(lineString); //TODO why no polygon
-            lineString.addContent(coordinates);
+            geomStyle.addContent(outer);
+            outer.addContent(linearRing);
+            linearRing.addContent(coordinates);
             coordinates.setText(coordinatesStr);
+
+            //geomStyle.addContent(outer.clone().setName("innerBoundaryIs"));
            // placemark.addContent(geomStyle);
-            placemark.addContent(lineString);
+            placemark.addContent(geomStyle);
         }
 
         //Output
@@ -120,6 +136,7 @@ public class JDOM2Manager {
     }
 
     Element headerOutput(){
+        String POLY_INNER = "f0000f";
         Element docElem = new Element("Document");
         doc = new Document(docElem);
 
@@ -130,6 +147,9 @@ public class JDOM2Manager {
         Element lineStyle = new Element("LineStyle");
         lineStyle.addContent(new Element("color").setText("ff00aaff"));
         lineStyle.addContent(new Element("width").setText("5"));
+
+        //couleur interne
+        style.addContent(new Element("PolyStyle").addContent(new Element("color").addContent(POLY_INNER)));
 
         docElem.addContent(name);
         docElem.addContent(style.addContent(lineStyle));

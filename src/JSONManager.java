@@ -43,17 +43,17 @@ public class JSONManager {
 
             //Writing
             JDOM2Manager writer = new JDOM2Manager(output);
-            JSONObject test = (JSONObject) features.get(0);
+            JSONObject test = (JSONObject) features.get(5);
 
             Element docElem = writer.headerOutput();
             for(Object country : features){
-                writer.writeKMLPolygon((JSONObject)country);
+                //writer.writeKMLPolygon((JSONObject)country);
                 writer.toOutputFile((JSONObject)country, docElem);
             }
             writer.writeKMLPolygon((JSONObject)test);
 
             //flush on output file
-           // writer.toOutputFile(test);
+            //writer.toOutputFile(test, docElem);
 
         } catch (IOException | ParseException e ) {
             e.printStackTrace();
