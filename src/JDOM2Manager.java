@@ -24,8 +24,8 @@ public class JDOM2Manager {
     }
 
     public void toOutputFile() throws IOException {
-        Element company = new Element("company");
-        doc = new Document(company);
+        Element docElem = new Element("Document");
+        doc = new Document(docElem);
 
         Element name = new Element("name");
         Element style = new Element("Style");
@@ -34,17 +34,20 @@ public class JDOM2Manager {
         lineStyle.addContent(new Element("color").setText("ff00aaff"));
         lineStyle.addContent(new Element("width").setText("5"));
 
-        company.addContent(name);
-        company.addContent(style.addContent(lineStyle));
+        docElem.addContent(name);
+        docElem.addContent(style.addContent(lineStyle));
 
 
-//        name.addContent(new Element("firstname").setText("yong"));
-//        name.addContent(new Element("lastname").setText("mook kim"));
-//        name.addContent(new Element("nickname").setText("mkyong"));
-//        name.addContent(new Element("salary").setText("199999"));
-JSONObject polygon;
+        Element placemark = new Element("Placemark");
+        Element lineString = new Element("LineString");
+        Element coordinates = new Element("coordinates");
 
-        //doc.setRootElement(company);
+        docElem.addContent(placemark);
+        placemark.addContent(name.clone());
+        placemark.addContent(new Element("styleUrl").setText("#orange-5px"));
+        placemark.addContent(lineString.addContent(new Element("tessellate").setText("1")));
+        lineString.addContent(coordinates);
+
 
         XMLOutputter xmlOutputter = new XMLOutputter();
         xmlOutputter.setFormat(Format.getPrettyFormat());
