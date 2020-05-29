@@ -34,6 +34,8 @@ public class JDOM2Manager {
         Element docElem = new Element("Document");
         doc = new Document(docElem);
 
+        boolean isPolygonMulti = ((JSONObject)country.get("geometry")).get("type").toString().equals("MultiPolygon");
+
         Element name = new Element("name");
         name.setText("countries.kml");
         Element style = new Element("Style");
@@ -53,33 +55,33 @@ public class JDOM2Manager {
         placemark.addContent(new Element("styleUrl").setText("#orange-5px"));
 
         String coordinatesStr ="";
-//        String coordinatesStr = ((JSONObject)country.get("geometry")).get("type").toString().equals("MultiPolygon") ?
-//                multiPolygonToStr(country) : polygonToStr(country);
-        JSONArray testArray = (JSONArray) ((JSONObject)country.get("geometry")).get("coordinates");
-        Element multiG = new Element("MultiGeometry");
-        for(int i =0; i < testArray.size(); i++){
-            extractCoordMP(i, country);
+
+        if(isPolygonMulti){
+            JSONArray testArray = (JSONArray) ((JSONObject)country.get("geometry")).get("coordinates");
+            Element geomStyle = new Element("MultiGeometry");
+            for(int i =0; i < testArray.size(); i++){
+                extractCoordMP(i, country);
+                Element lineString = new Element("LineString");
+                Element coordinates = new Element("coordinates");
+                coordinatesStr = extractCoordMP(i, country);
+                geomStyle.addContent(lineString);
+                lineString.addContent(coordinates);
+                coordinates.setText(coordinatesStr);
+            }
+            placemark.addContent(geomStyle);
+        }else{
+            Element geomStyle = new Element("Polygon");
             Element lineString = new Element("LineString");
             Element coordinates = new Element("coordinates");
-            coordinatesStr = extractCoordMP(i, country);
-            multiG.addContent(lineString);
+            coordinatesStr = polygonToStr(country);
+           // geomStyle.addContent(lineString); //TODO why no polygon
             lineString.addContent(coordinates);
             coordinates.setText(coordinatesStr);
+           // placemark.addContent(geomStyle);
+            placemark.addContent(lineString);
         }
 
-        placemark.addContent(multiG);
-
-
-
-
-
-
-
-
-
-
         //Output
-
         XMLOutputter xmlOutputter = new XMLOutputter();
         xmlOutputter.setFormat(Format.getPrettyFormat());
         xmlOutputter.output(doc, new FileWriter(XMLPath));
@@ -132,7 +134,20 @@ public class JDOM2Manager {
         return coordinatesStr;
     }
 
-    String extractCoordPoly(int i){
-        return "";
+    void headerOutput(){
+        Element docElem = new Element("Document");
+        doc = new Document(docElem);
+
+        Element name = new Element("name");
+        name.setText("countries.kml");
+        Element style = new Element("Style");
+        style.setAttribute(new Attribute("id", "orange-5px"));
+        Element lineStyle = new Element("LineStyle");
+        lineStyle.addContent(new Element("color").setText("ff00aaff"));
+        lineStyle.addContent(new Element("width").setText("5"));
+
+        docElem.addContent(name);
+        docElem.addContent(style.addContent(lineStyle));
     }
+
 }
