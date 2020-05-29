@@ -5,6 +5,8 @@
  */
 
 import java.io.*;
+import java.util.HashMap;
+
 import org.jdom2.*;
 import org.jdom2.output.*;
 import org.json.simple.JSONArray;
@@ -22,6 +24,10 @@ public class JDOM2Manager {
     public void writeKMLPolygon(JSONObject polygon){
         System.out.println(((JSONObject)polygon.get("geometry")).get("type"));
         System.out.println(((JSONObject)polygon.get("properties")).get("ADMIN"));
+        JSONArray coordinatesArray = (JSONArray) ((JSONObject)polygon.get("geometry")).get("coordinates");
+       // JSONObject coordinatesTest = (JSONObject) ((JSONObject)polygon.get("geometry")).get("coordinates");
+
+        System.out.println(coordinatesArray);
     }
 
     public void toOutputFile(JSONObject country) throws IOException {
@@ -46,11 +52,15 @@ public class JDOM2Manager {
 
 
         String countryName = ((JSONObject)country.get("properties")).get("ADMIN").toString();
-        JSONArray coordinatesArray = (JSONArray) ((JSONObject)country.get("geometry")).get("coordinates");
-        String coordinatesStr = "";
+        JSONArray coordinatesArrayRoot = (JSONArray) ((JSONObject)country.get("geometry")).get("coordinates");
+        JSONArray coordinatesArray = (JSONArray) coordinatesArrayRoot.get(0);
+
+        String coordinatesStr = "\n";
 
         for(Object coord : coordinatesArray){
-            coordinatesStr += coord.toString() + "!!\r";
+            JSONArray coordArray = (JSONArray)coord;
+            coordinatesStr += coordArray.get(0)+ "," + coordArray.get(1) + ",0\n";
+
         }
 
 

@@ -42,11 +42,11 @@ public class JSONManager {
 
             //Writing
             JDOM2Manager writer = new JDOM2Manager(output);
-            JSONObject test = null;
-            for(Object country : features){
-                writer.writeKMLPolygon((JSONObject)country);
-                test = (JSONObject) country;
-            }
+            JSONObject test = (JSONObject) features.get(0);
+//            for(Object country : features){
+//                writer.writeKMLPolygon((JSONObject)country);
+//            }
+            writer.writeKMLPolygon((JSONObject)test);
 
             //flush on output file
             writer.toOutputFile(test);
