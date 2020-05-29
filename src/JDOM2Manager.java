@@ -24,10 +24,10 @@ public class JDOM2Manager {
     public void writeKMLPolygon(JSONObject polygon){
         System.out.println(((JSONObject)polygon.get("geometry")).get("type"));
         System.out.println(((JSONObject)polygon.get("properties")).get("ADMIN"));
-        JSONArray coordinatesArray = (JSONArray) ((JSONObject)polygon.get("geometry")).get("coordinates");
+       // JSONArray coordinatesArray = (JSONArray) ((JSONObject)polygon.get("geometry")).get("coordinates");
        // JSONObject coordinatesTest = (JSONObject) ((JSONObject)polygon.get("geometry")).get("coordinates");
 
-        System.out.println(coordinatesArray);
+      //  System.out.println(coordinatesArray);
     }
 
     public void toOutputFile(JSONObject country) throws IOException {
@@ -52,16 +52,9 @@ public class JDOM2Manager {
 
 
         String countryName = ((JSONObject)country.get("properties")).get("ADMIN").toString();
-        JSONArray coordinatesArrayRoot = (JSONArray) ((JSONObject)country.get("geometry")).get("coordinates");
-        JSONArray coordinatesArray = (JSONArray) coordinatesArrayRoot.get(0);
 
-        String coordinatesStr = "\n";
-
-        for(Object coord : coordinatesArray){
-            JSONArray coordArray = (JSONArray)coord;
-            coordinatesStr += coordArray.get(0)+ "," + coordArray.get(1) + ",0\n";
-
-        }
+        String coordinatesStr = ((JSONObject)country.get("geometry")).get("type").toString().equals("MultiPolygon") ?
+                multiPolygonToStr(country) : polygonToStr(country);
 
 
         docElem.addContent(placemark);
@@ -74,11 +67,43 @@ public class JDOM2Manager {
 
 
 
-
+        //Output
 
         XMLOutputter xmlOutputter = new XMLOutputter();
         xmlOutputter.setFormat(Format.getPrettyFormat());
         xmlOutputter.output(doc, new FileWriter(XMLPath));
     }
 
+    String polygonToStr(JSONObject polygon){
+        JSONArray coordinatesArrayRoot = (JSONArray) ((JSONObject)polygon.get("geometry")).get("coordinates");
+         JSONArray coordinatesArraySuperRoot = (JSONArray) coordinatesArrayRoot.get(0);
+        //JSONArray coordinatesArray = true ? (JSONArray) coordinatesArraySuperRoot.get(0) : coordinatesArraySuperRoot;
+        JSONArray coordinatesArray = coordinatesArraySuperRoot;
+
+        String coordinatesStr = "\n";
+
+        for(Object coord : coordinatesArray){
+            JSONArray coordArray = (JSONArray)coord;
+            coordinatesStr += coordArray.get(0)+ "," + coordArray.get(1) + ",0\n";
+        }
+        return coordinatesStr;
+    }
+
+    String multiPolygonToStr(JSONObject multiPolygon){
+        JSONArray coordinatesArrayRoot = (JSONArray) ((JSONObject)multiPolygon.get("geometry")).get("coordinates");
+        JSONArray coordinatesArraySuperRoot = (JSONArray) coordinatesArrayRoot.get(0);
+        //JSONArray coordinatesArray = coordinatesArraySuperRoot.get(0);
+
+        String coordinatesStr = "\n";
+    for(Object coordinatesArray : coordinatesArrayRoot){
+        JSONArray polyArray = (JSONArray) ((JSONArray) (coordinatesArray)).get(0);
+
+        for(Object coord : (JSONArray) polyArray){
+            JSONArray coordArray = (JSONArray)coord;
+            coordinatesStr += coordArray.get(0)+ "," + coordArray.get(1) + ",0\n";
+        }
+    }
+
+        return coordinatesStr;
+    }
 }
