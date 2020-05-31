@@ -7,6 +7,7 @@
 import java.io.FileReader;
 import java.io.IOException;
 
+import org.jdom2.Element;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -34,20 +35,18 @@ public class JSONManager {
     public void parseKML(String output) {
 
         try (FileReader reader = new FileReader(file)) {
-
-            JDOM2Manager writer = new JDOM2Manager(output);
-
             //reading file
             Object obj = parser.parse(reader);
 
             //parsing each country
             JSONArray features = (JSONArray) ((JSONObject)obj).get("features");
-            for(Object country : features){
-                writer.writeKMLPolygon((JSONObject)country);
-            }
 
-            //flush on output file
-            writer.flush();
+            //Writing
+            JDOM2Manager writer = new JDOM2Manager(output);
+
+            for(Object country : features){
+                writer.toOutputFile((JSONObject)country);
+            }
 
         } catch (IOException | ParseException e ) {
             e.printStackTrace();
