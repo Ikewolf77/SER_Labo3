@@ -39,8 +39,6 @@ public class JDOM2Manager {
         placemark.addContent(new Element("name").setText(countryName));
         placemark.addContent(new Element("styleUrl").setText("#orange-5px"));
 
-        String coordinatesStr = "";
-
         JSONObject geometry = (JSONObject)country.get("geometry");
         boolean isPolygonMulti = geometry.get("type").toString().equals("MultiPolygon");
 
@@ -52,37 +50,35 @@ public class JDOM2Manager {
 
             for(int i =0; i < coordinates1.size(); i++){
                 JSONArray root = (JSONArray)coordinates1.get(i);
-                Element linearRing = new Element("LinearRing");
-                Element coordinates = new Element("coordinates");
-                Element outer = new Element("outerBoundaryIs");
-                Element poly = new Element("Polygon");
-                coordinatesStr = polygonToStr(root);
-                coordinates.setText(coordinatesStr);
-                linearRing.addContent(coordinates);
-                outer.addContent(linearRing);
-                poly.addContent(outer);
-                geomStyle.addContent(poly);
+                geomStyle.addContent(parseCoordinates(root));
             }
             placemark.addContent(geomStyle);
 
         } else {
 
-            Element linearRing = new Element("LinearRing");
-            Element coordinates = new Element("coordinates");
-            Element outer = new Element("outerBoundaryIs");
-            Element geomStyle = new Element("Polygon");
-            coordinatesStr = polygonToStr(coordinates1);
-            geomStyle.addContent(outer);
-            outer.addContent(linearRing);
-            linearRing.addContent(coordinates);
-            coordinates.setText(coordinatesStr);
-            placemark.addContent(geomStyle);
+            placemark.addContent(parseCoordinates(coordinates1));
+
         }
 
         //Output
         XMLOutputter xmlOutputter = new XMLOutputter();
         xmlOutputter.setFormat(Format.getPrettyFormat());
         xmlOutputter.output(doc, new FileWriter(XMLPath));
+    }
+
+    private Element parseCoordinates(JSONArray coordinatesArray){
+        Element linearRing = new Element("LinearRing");
+        Element coordinates = new Element("coordinates");
+        Element outer = new Element("outerBoundaryIs");
+        Element poly = new Element("Polygon");
+
+        String coordinatesStr = polygonToStr(coordinatesArray);
+        coordinates.setText(coordinatesStr);
+        linearRing.addContent(coordinates);
+        outer.addContent(linearRing);
+        poly.addContent(outer);
+
+        return poly;
     }
 
     /**
@@ -101,35 +97,6 @@ public class JDOM2Manager {
 
         return coordinatesStr.toString();
     }
-
-    /**
-     * @param y coordinate position
-     * @param multiPolygon multipolygon
-     * @return coordinates for this position
-     */
-    /*
-    private String extractCoordMP(int y, JSONObject multiPolygon){
-        JSONArray coordinatesArrayRoot = (JSONArray) ((JSONObject)multiPolygon.get("geometry")).get("coordinates");
-        JSONArray coordinatesArray = (JSONArray) coordinatesArrayRoot.get(y);
-        JSONArray polyArray = (JSONArray) ((coordinatesArray)).get(0);
-
-        return getString(polyArray);
-    }
-
-    /**
-     * get string from a JSONArray
-     * @param polyArray JSONArray
-     * @return string convertion
-     *//*
-    private String getString(JSONArray polyArray) {
-        StringBuilder coordinatesStr = new StringBuilder("\n");
-        for(Object coord : polyArray){
-            JSONArray coordArray = (JSONArray)coord;
-            coordinatesStr.append(coordArray.get(0)).append(",").append(coordArray.get(1)).append(",0\n");
-        }
-
-        return coordinatesStr.toString();
-    }*/
 
     /**
      * Creates header before each country
