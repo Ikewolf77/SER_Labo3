@@ -38,7 +38,7 @@ public class JDOM2Manager {
         System.out.println("(" + (countryCode.equals("-99") ? "" : countryCode) + ") " + countryName);
 
         placemark.addContent(new Element("name").setText(countryName));
-        placemark.addContent(new Element("styleUrl").setText("#orange-5px"));
+        placemark.addContent(new Element("styleUrl").setText("#white-2px"));
 
         JSONObject geometry = (JSONObject)country.get("geometry");
         boolean isPolygonMulti = geometry.get("type").toString().equals("MultiPolygon");
@@ -111,20 +111,19 @@ public class JDOM2Manager {
      * @return Header Element
      */
     private Element headerOutput(){
-        String POLY_INNER = "f0000f";
         Element docElem = new Element("Document");
         doc = new Document(docElem);
 
         Element name = new Element("name");
         name.setText("countries.kml");
         Element style = new Element("Style");
-        style.setAttribute(new Attribute("id", "orange-5px"));
+        style.setAttribute(new Attribute("id", "white-2px"));
         Element lineStyle = new Element("LineStyle");
-        lineStyle.addContent(new Element("color").setText("ff00aaff"));
-        lineStyle.addContent(new Element("width").setText("5"));
+        lineStyle.addContent(new Element("color").setText("ffffffff"));
+        lineStyle.addContent(new Element("width").setText("2"));
 
         //intern color
-        style.addContent(new Element("PolyStyle").addContent(new Element("color").addContent(POLY_INNER)));
+        style.addContent(new Element("PolyStyle").addContent(new Element("color").addContent("00000000")));
 
         docElem.addContent(name);
         docElem.addContent(style.addContent(lineStyle));
