@@ -66,6 +66,11 @@ public class JDOM2Manager {
         xmlOutputter.output(doc, new FileWriter(XMLPath));
     }
 
+    /**
+     * Creates the polygon object
+     * @param coordinatesArray coordinates of polygon
+     * @return polygon Element
+     */
     private Element parseCoordinates(JSONArray coordinatesArray){
         Element linearRing = new Element("LinearRing");
         Element coordinates = new Element("coordinates");
@@ -90,10 +95,12 @@ public class JDOM2Manager {
         JSONArray coordinatesArray = (JSONArray) coordinatesArrayRoot.get(0);
 
         StringBuilder coordinatesStr = new StringBuilder("\n");
-        for(Object coord : coordinatesArray){
-            JSONArray coordArray = (JSONArray)coord;
-            coordinatesStr.append(coordArray.get(0)).append(",").append(coordArray.get(1)).append(",0\n");
+        for(Object coords : coordinatesArray){
+            JSONArray coordsArray = (JSONArray)coords;
+            coordinatesStr.append(coordsArray.get(0)).append(",").append(coordsArray.get(1)).append(",0\n");
         }
+
+        System.out.println("- " + coordinatesArray.size() + " coordinates");
 
         return coordinatesStr.toString();
     }
