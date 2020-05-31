@@ -14,27 +14,28 @@ public class JDOM2Manager {
 
     private String XMLPath;
     private Document doc;
+    private Element rootElem;
 
     public JDOM2Manager(String output){
         XMLPath = output;
+        rootElem = headerOutput();
     }
 
     /**
      * Converts current country to output file
      * @param country country
-     * @param docElem Document
      */
-    public void toOutputFile(JSONObject country, Element docElem) throws IOException {
+    public void toOutputFile(JSONObject country) throws IOException {
 
         //add placemark
         Element placemark = new Element("Placemark");
-        docElem.addContent(placemark);
+        rootElem.addContent(placemark);
 
         JSONObject properties = (JSONObject)country.get("properties");
         String countryName = properties.get("ADMIN").toString();
         String countryCode = properties.get("ISO_A3").toString();
 
-        System.out.println("(" + countryCode + ") " + countryName);
+        System.out.println("(" + (countryCode.equals("-99") ? "" : countryCode) + ") " + countryName);
 
         placemark.addContent(new Element("name").setText(countryName));
         placemark.addContent(new Element("styleUrl").setText("#orange-5px"));
@@ -42,21 +43,21 @@ public class JDOM2Manager {
         JSONObject geometry = (JSONObject)country.get("geometry");
         boolean isPolygonMulti = geometry.get("type").toString().equals("MultiPolygon");
 
-        JSONArray coordinates1 = (JSONArray) geometry.get("coordinates");
+        JSONArray coordinates = (JSONArray) geometry.get("coordinates");
 
         if(isPolygonMulti){
 
             Element geomStyle = new Element("MultiGeometry");
 
-            for(int i =0; i < coordinates1.size(); i++){
-                JSONArray root = (JSONArray)coordinates1.get(i);
+            for (Object array : coordinates) {
+                JSONArray root = (JSONArray) array;
                 geomStyle.addContent(parseCoordinates(root));
             }
             placemark.addContent(geomStyle);
 
         } else {
 
-            placemark.addContent(parseCoordinates(coordinates1));
+            placemark.addContent(parseCoordinates(coordinates));
 
         }
 
@@ -109,7 +110,7 @@ public class JDOM2Manager {
      * Creates header before each country
      * @return Header Element
      */
-    public Element headerOutput(){
+    private Element headerOutput(){
         String POLY_INNER = "f0000f";
         Element docElem = new Element("Document");
         doc = new Document(docElem);

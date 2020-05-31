@@ -44,9 +44,8 @@ public class JSONManager {
             //Writing
             JDOM2Manager writer = new JDOM2Manager(output);
 
-            Element docElem = writer.headerOutput();
             for(Object country : features){
-                writer.toOutputFile((JSONObject)country, docElem);
+                writer.toOutputFile((JSONObject)country);
             }
 
         } catch (IOException | ParseException e ) {
