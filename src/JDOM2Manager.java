@@ -25,26 +25,34 @@ public class JDOM2Manager {
      * @param docElem Document
      */
     public void toOutputFile(JSONObject country, Element docElem) throws IOException {
-        boolean isPolygonMulti = ((JSONObject)country.get("geometry")).get("type").toString().equals("MultiPolygon");
 
+        //add placemark
         Element placemark = new Element("Placemark");
-        String countryName = ((JSONObject)country.get("properties")).get("ADMIN").toString();
         docElem.addContent(placemark);
+
+        JSONObject properties = (JSONObject)country.get("properties");
+        String countryName = properties.get("ADMIN").toString();
+        String countryCode = properties.get("ISO_A3").toString();
+
+        System.out.println("(" + countryCode + ") " + countryName);
+
         placemark.addContent(new Element("name").setText(countryName));
         placemark.addContent(new Element("styleUrl").setText("#orange-5px"));
 
         String coordinatesStr = "";
 
+        JSONObject geometry = (JSONObject)country.get("geometry");
+        boolean isPolygonMulti = geometry.get("type").toString().equals("MultiPolygon");
+
         if(isPolygonMulti){
 
-            JSONArray testArray = (JSONArray) ((JSONObject)country.get("geometry")).get("coordinates");
+            JSONArray testArray = (JSONArray) geometry.get("coordinates");
             Element geomStyle = new Element("MultiGeometry");
 
             for(int i =0; i < testArray.size(); i++){
                 Element linearRing = new Element("LinearRing");
                 Element coordinates = new Element("coordinates");
                 Element outer = new Element("outerBoundaryIs");
-                extractCoordMP(i, country);
                 Element poly = new Element("Polygon");
                 coordinatesStr = extractCoordMP(i, country);
                 coordinates.setText(coordinatesStr);
